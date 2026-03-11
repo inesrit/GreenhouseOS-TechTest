@@ -1,10 +1,14 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { UI_TEXT, ICONS, getPropertyStatusColor } from "@/constants/constants";
+import type {
+  PropertyCardProps,
+  PropertyInfoProps,
+  PropertyCardContentProps,
+  PriceDisplayProps,
+} from "@/types";
 
-const API_URL = "http://localhost:3000";
-
-function PriceTag({ price }: { price: any }) {
+function PriceTag({ price }: PriceDisplayProps) {
   return (
     <p className="text-2xl font-bold text-green-700 mt-1">
       {price}
@@ -16,16 +20,12 @@ function PropertyInfo({
   address,
   price,
   listedDate,
-}: {
-  address: any;
-  price: any;
-  listedDate: any;
-}) {
+}: PropertyInfoProps) {
   return (
     <div>
       <h3 className="font-semibold text-lg text-gray-900 truncate">{address}</h3>
       <PriceTag price={price} />
-      <p className="text-xs text-gray-400 mt-1">Listed: {listedDate}</p>
+      <p className="text-xs text-gray-400 mt-1">{UI_TEXT.LISTED_PREFIX} {listedDate}</p>
     </div>
   );
 }
@@ -38,36 +38,21 @@ function PropertyCardContent({
   offerCount,
   isLoadingOffers,
   propertyId,
-}: {
-  address: any;
-  price: any;
-  status: any;
-  listedDate: any;
-  offerCount: any;
-  isLoadingOffers: any;
-  propertyId: any;
-}) {
-  const getStatusColor = (s: any) => {
-    if (s === "Available") return "bg-green-100 text-green-800";
-    if (s === "Sale Agreed") return "bg-yellow-100 text-yellow-800";
-    if (s === "Sold") return "bg-blue-100 text-blue-800";
-    return "bg-gray-100 text-gray-800";
-  };
-
+}: PropertyCardContentProps) {
   return (
     <a href={`/property/${propertyId}`} className="block">
       <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow cursor-pointer border border-gray-100">
         <div className="bg-gray-200 h-48 flex items-center justify-center">
-          <span className="text-gray-400 text-4xl">🏠</span>
+          <span className="text-gray-400 text-4xl">{ICONS.HOUSE}</span>
         </div>
         <div className="p-4">
           <PropertyInfo address={address} price={price} listedDate={listedDate} />
           <div className="flex justify-between items-center mt-3">
-            <span className={`px-2 py-1 rounded-full text-xs font-semibold ${getStatusColor(status)}`}>
+            <span className={`px-2 py-1 rounded-full text-xs font-semibold ${getPropertyStatusColor(status)}`}>
               {status}
             </span>
             {isLoadingOffers ? (
-              <span className="text-gray-400 text-sm">Loading offers...</span>
+              <span className="text-gray-400 text-sm">{UI_TEXT.LOADING_OFFERS}</span>
             ) : (
               <span className="text-sm text-gray-600">
                 {offerCount} offer{offerCount !== 1 ? "s" : ""}
@@ -80,25 +65,9 @@ function PropertyCardContent({
   );
 }
 
-export default function PropertyCard({
-  property,
-}: {
-  property: any;
-}) {
-  const [offerCount, setOfferCount] = useState(0);
-  const [isLoadingOffers, setIsLoadingOffers] = useState(true);
-
-  useEffect(() => {
-    const fetchOffers = async () => {
-      const res = await fetch(
-        `${API_URL}/api/offers?propertyId=${property.id}`
-      );
-      const data = await res.json();
-      setOfferCount(data.length);
-      setIsLoadingOffers(false);
-    };
-    fetchOffers();
-  }, []);
+export default function PropertyCard({ property }: PropertyCardProps) {
+  const offerCount = property._metadata?.offerCount ?? 0;
+  const isLoadingOffers = false;
 
   return (
     <PropertyCardContent
