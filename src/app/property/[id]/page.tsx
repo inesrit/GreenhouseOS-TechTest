@@ -1,10 +1,17 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { UI_TEXT, ICONS, API_ROUTES, getPropertyStatusColor, getOfferStatusColor } from "@/constants/constants";
+import type {
+  Property,
+  Offer,
+  PropertyDetailPageProps,
+  PropertyHeaderProps,
+  OfferRowProps,
+  PriceDisplayProps,
+} from "@/types";
 
-const API_URL = "http://localhost:3000";
-
-function PriceDisplay({ price }: { price: any }) {
+function PriceDisplay({ price }: PriceDisplayProps) {
   return (
     <p className="text-3xl font-bold text-green-700 mt-2">
       {price}
@@ -17,29 +24,17 @@ function PropertyHeader({
   price,
   status,
   listedDate,
-}: {
-  address: any;
-  price: any;
-  status: any;
-  listedDate: any;
-}) {
-  const getStatusColor = (s: any) => {
-    if (s === "Available") return "bg-green-100 text-green-800";
-    if (s === "Sale Agreed") return "bg-yellow-100 text-yellow-800";
-    if (s === "Sold") return "bg-blue-100 text-blue-800";
-    return "bg-gray-100 text-gray-800";
-  };
-
+}: PropertyHeaderProps) {
   return (
     <div className="p-6">
       <div className="flex justify-between items-start">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">{address}</h1>
           <PriceDisplay price={price} />
-          <p className="text-sm text-gray-400 mt-2">Listed: {listedDate}</p>
+          <p className="text-sm text-gray-400 mt-2">{UI_TEXT.LISTED_PREFIX} {listedDate}</p>
         </div>
         <span
-          className={`px-3 py-1 rounded-full text-sm font-semibold ${getStatusColor(status)}`}
+          className={`px-3 py-1 rounded-full text-sm font-semibold ${getPropertyStatusColor(status)}`}
         >
           {status}
         </span>
@@ -48,25 +43,12 @@ function PropertyHeader({
   );
 }
 
-function OfferRow({
-  amount,
-  status,
-}: {
-  amount: any;
-  status: any;
-}) {
-  const getStatusColor = (s: any) => {
-    if (s === "Accepted") return "bg-green-100 text-green-800";
-    if (s === "Rejected") return "bg-red-100 text-red-800";
-    if (s === "Pending") return "bg-yellow-100 text-yellow-800";
-    return "bg-gray-100 text-gray-800";
-  };
-
+function OfferRow({ amount, status }: OfferRowProps) {
   return (
     <tr className="border-b border-gray-100 hover:bg-gray-50">
       <td className="py-3 px-4 font-medium text-gray-900">{amount}</td>
       <td className="py-3 px-4">
-        <span className={`px-2 py-1 rounded-full text-xs font-semibold ${getStatusColor(status)}`}>
+        <span className={`px-2 py-1 rounded-full text-xs font-semibold ${getOfferStatusColor(status)}`}>
           {status}
         </span>
       </td>
@@ -74,29 +56,26 @@ function OfferRow({
   );
 }
 
-export default function PropertyDetailPage({
-  params,
-}: {
-  params: any;
-}) {
-  const [property, setProperty] = useState<any>(null);
-  const [offers, setOffers] = useState<any>([]);
+export default function PropertyDetailPage({ params }: PropertyDetailPageProps) {
+  const [property, setProperty] = useState<Property | null>(null);
+  const [offers, setOffers] = useState<Offer[]>([]);
   const [loadingProperty, setLoadingProperty] = useState(true);
   const [loadingOffers, setLoadingOffers] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
-      const propertyRes = await fetch(
-        `${API_URL}/api/properties/${params.id}`
-      );
-      const propertyData = await propertyRes.json();
+      const [propertyRes, offersRes] = await Promise.all([
+        fetch(`${API_ROUTES.PROPERTIES}/${params.id}`),
+        fetch(`${API_ROUTES.OFFERS}?propertyId=${params.id}`)
+      ]);
+
+      const [propertyData, offersData] = await Promise.all([
+        propertyRes.json(),
+        offersRes.json()
+      ]);
+
       setProperty(propertyData);
       setLoadingProperty(false);
-
-      const offersRes = await fetch(
-        `${API_URL}/api/offers?propertyId=${params.id}`
-      );
-      const offersData = await offersRes.json();
       setOffers(offersData);
       setLoadingOffers(false);
     };
@@ -109,7 +88,7 @@ export default function PropertyDetailPage({
       <div className="flex justify-center items-center min-h-[60vh]">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-700 mx-auto"></div>
-          <p className="mt-4 text-gray-500">Loading property...</p>
+          <p className="mt-4 text-gray-500">{UI_TEXT.LOADING_PROPERTY}</p>
         </div>
       </div>
     );
@@ -121,12 +100,12 @@ export default function PropertyDetailPage({
         href="/"
         className="text-green-700 hover:underline text-sm mb-4 inline-block"
       >
-        ← Back to Properties
+        {UI_TEXT.BACK_TO_PROPERTIES}
       </a>
 
       <div className="bg-white rounded-lg shadow-md overflow-hidden">
         <div className="bg-gray-200 h-72 flex items-center justify-center">
-          <span className="text-gray-400 text-6xl">🏠</span>
+          <span className="text-gray-400 text-6xl">{ICONS.HOUSE}</span>
         </div>
         <PropertyHeader
           address={property.address}
@@ -137,21 +116,21 @@ export default function PropertyDetailPage({
       </div>
 
       <div className="mt-8 bg-white rounded-lg shadow-md p-6">
-        <h2 className="text-xl font-bold text-gray-900 mb-4">Offers</h2>
+        <h2 className="text-xl font-bold text-gray-900 mb-4">{UI_TEXT.OFFERS_TITLE}</h2>
         {loadingOffers ? (
-          <p className="text-gray-400 py-4">Loading offers...</p>
+          <p className="text-gray-400 py-4">{UI_TEXT.LOADING_OFFERS}</p>
         ) : offers.length === 0 ? (
-          <p className="text-gray-400 py-4">No offers yet.</p>
+          <p className="text-gray-400 py-4">{UI_TEXT.NO_OFFERS}</p>
         ) : (
           <table className="w-full">
             <thead>
               <tr className="text-left text-sm text-gray-500 border-b border-gray-200">
-                <th className="py-2 px-4">Amount</th>
-                <th className="py-2 px-4">Status</th>
+                <th className="py-2 px-4">{UI_TEXT.AMOUNT_LABEL}</th>
+                <th className="py-2 px-4">{UI_TEXT.STATUS_LABEL}</th>
               </tr>
             </thead>
             <tbody>
-              {offers.map((offer: any) => (
+              {offers.map((offer) => (
                 <OfferRow
                   key={offer.id}
                   amount={offer.amount}
