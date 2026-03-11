@@ -1,9 +1,12 @@
 import "./globals.css";
+import { UI_TEXT, ICONS } from "@/constants/constants";
 
 export const metadata = {
-  title: "GreenHouse Property Portal",
-  description: "Property management portal",
+  title: process.env.NEXT_PUBLIC_APP_TITLE,
+  description: process.env.NEXT_PUBLIC_APP_DESCRIPTION,
 };
+
+const appName = process.env.NEXT_PUBLIC_APP_NAME;
 
 export default function RootLayout({
   children,
@@ -16,12 +19,12 @@ export default function RootLayout({
         <nav className="bg-green-700 text-white p-4 shadow-md">
           <div className="max-w-7xl mx-auto flex justify-between items-center">
             <a href="/" className="text-2xl font-bold">
-              🏡 GreenhouseOS
+              {ICONS.APP_LOGO} {appName}
             </a>
             <div className="flex gap-6 text-sm">
-              <a href="/" className="hover:underline">Properties</a>
-              <a href="#" className="hover:underline">Dashboard</a>
-              <a href="#" className="hover:underline">Settings</a>
+              <a href="/" className="hover:underline">{UI_TEXT.NAV_PROPERTIES}</a>
+              <a href="#" className="hover:underline">{UI_TEXT.NAV_DASHBOARD}</a>
+              <a href="#" className="hover:underline">{UI_TEXT.NAV_SETTINGS}</a>
             </div>
           </div>
         </nav>
