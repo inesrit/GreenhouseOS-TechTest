@@ -6,7 +6,7 @@ export async function GET(request: Request) {
   const propertyId = searchParams.get("propertyId");
 
   if (propertyId) {
-    const filtered = offers.filter((o: any) => o.propertyId === propertyId);
+    const filtered = offers.filter((o) => o.propertyId === propertyId);
     return NextResponse.json(filtered);
   }
 

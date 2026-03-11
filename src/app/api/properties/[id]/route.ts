@@ -5,7 +5,7 @@ export async function GET(
   request: Request,
   { params }: { params: { id: string } }
 ) {
-  const property = properties.find((p: any) => p.id === params.id);
+  const property = properties.find((p) => p.id === params.id);
   if (!property) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }

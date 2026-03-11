@@ -5,9 +5,9 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const propertyId = searchParams.get("propertyId");
 
+  //TODO: Implement actual filtering logic based on propertyId
   if (propertyId) {
-    const filtered = contacts.filter((c: any) => c.propertyId === propertyId);
-    return NextResponse.json(filtered);
+    return NextResponse.json([]);
   }
 
   return NextResponse.json(contacts);
