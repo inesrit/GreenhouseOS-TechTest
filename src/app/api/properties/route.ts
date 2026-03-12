@@ -1,12 +1,14 @@
 import { NextResponse } from "next/server";
 import { properties, contacts, offers } from "@/data/mock";
 
+const CACHE_HEADERS = {
+  'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=120',
+};
+
 export async function GET() {
-  // Simulate fetching related data for each property
   const enrichedProperties = [];
   
   for (const property of properties) {
-    // Sequentially fetch contacts and offers for each property
     const propertyOffers = offers.filter(o => o.propertyId === property.id);
     const relatedContacts = contacts.filter(c => 
       propertyOffers.some(o => o.contactId === c.id)
@@ -21,5 +23,7 @@ export async function GET() {
     });
   }
 
-  return NextResponse.json(enrichedProperties);
+  return NextResponse.json(enrichedProperties, {
+    headers: CACHE_HEADERS,
+  });
 }
