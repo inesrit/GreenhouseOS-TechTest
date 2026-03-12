@@ -3,10 +3,6 @@
  * Contains interfaces for data models, API responses, and component props
  */
 
-// =============================================================================
-// Core Data Models
-// =============================================================================
-
 import { PROPERTY_STATUS, OFFER_STATUS, CONTACT_ROLE, SORT_OPTIONS } from "@/constants";
 
 export type PropertyStatus = typeof PROPERTY_STATUS[keyof typeof PROPERTY_STATUS];
@@ -16,10 +12,6 @@ export type OfferStatus = typeof OFFER_STATUS[keyof typeof OFFER_STATUS];
 export type ContactRole = typeof CONTACT_ROLE[keyof typeof CONTACT_ROLE];
 
 export type SortOption = typeof SORT_OPTIONS[keyof typeof SORT_OPTIONS];
-
-// =============================================================================
-// Base Interfaces
-// =============================================================================
 
 /**
  * Represents a property listing
@@ -71,10 +63,6 @@ export interface Offer {
   dateAdded: string;
 }
 
-// =============================================================================
-// Extended/Enriched Types (for API responses)
-// =============================================================================
-
 /**
  * Metadata attached to property API responses
  * @property offerCount - Number of offers on this property
@@ -85,17 +73,9 @@ export interface PropertyMetadata {
   contactCount: number;
 }
 
-/**
- * Property with additional metadata from API
- * Used by property list to avoid N+1 queries
- */
 export interface EnrichedProperty extends Property {
   _metadata: PropertyMetadata;
 }
-
-// =============================================================================
-// Component Props Interfaces
-// =============================================================================
 
 export interface PropertyCardProps {
   property: EnrichedProperty;
@@ -131,9 +111,6 @@ export interface PriceDisplayProps {
   price: number;
 }
 
-/**
- * Props for the PropertyFilters component
- */
 export interface PropertyFiltersProps {
   statusFilter: PropertyStatus | null;
   onStatusFilterChange: (status: PropertyStatus | null) => void;
@@ -143,35 +120,21 @@ export interface PropertyFiltersProps {
   totalCount: number;
 }
 
-/**
- * Props for the StatusFilter subcomponent
- */
 export interface StatusFilterProps {
   value: PropertyStatus | null;
   onChange: (status: PropertyStatus | null) => void;
 }
 
-/**
- * Props for the SortSelect subcomponent
- */
 export interface SortSelectProps {
   value: SortOption;
   onChange: (sort: SortOption) => void;
 }
-
-// =============================================================================
-// Page Props Interfaces
-// =============================================================================
 
 export interface PropertyDetailPageProps {
   params: {
     id: string;
   };
 }
-
-// =============================================================================
-// Offer Form Types
-// =============================================================================
 
 export interface OfferFormProps {
   propertyId: string;
@@ -186,4 +149,22 @@ export interface OfferSubmitResponse {
   success: boolean;
   message: string;
   offer: Offer;
+}
+
+/**
+ * Response from the Smart Suggest API endpoint
+ * @property suggestedAmount - AI-calculated suggested offer amount
+ * @property reasoning - Human-readable explanation of the suggestion
+ * @property marketData - Market analysis data used in calculation
+ */
+export interface SuggestionResponse {
+  suggestedAmount: number;
+  reasoning: string;
+  marketData: {
+    existingOffers: number;
+    avgExistingOffer: number | null;
+    nearbyProperties: number;
+    avgNearbyPrice: number | null;
+    avgNearbyOfferPercentage: number | null;
+  };
 }

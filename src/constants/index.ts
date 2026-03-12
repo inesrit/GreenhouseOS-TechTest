@@ -66,6 +66,13 @@ export const UI_TEXT = {
   OFFER_VALIDATION_NUMBER: "Please enter a valid number",
   PROPERTY_NOT_AVAILABLE: "This property is no longer accepting offers",
 
+  // Smart Suggest
+  SMART_SUGGEST: "Smart Suggest",
+  SMART_SUGGEST_LOADING: "Analyzing...",
+  SMART_SUGGEST_TOOLTIP: "Get an AI-powered offer suggestion based on market data",
+  SMART_SUGGEST_ERROR: "Unable to get suggestion",
+  SMART_SUGGEST_APPLIED: "Suggestion applied",
+
   // API Messages
   API_INVALID_JSON: "Invalid JSON in request body",
   API_INVALID_BODY: "Request body must be a JSON object",
@@ -192,4 +199,5 @@ export const ICONS = {
 export const API_ROUTES = {
   PROPERTIES: "/api/properties",
   OFFERS: "/api/offers",
+  OFFERS_SUGGEST: "/api/offers/suggest",
 } as const;
