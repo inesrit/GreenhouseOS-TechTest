@@ -6,8 +6,8 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { UI_TEXT, ICONS, API_ROUTES, getPropertyStatusColor, getOfferStatusColor, PROPERTY_STATUS } from "@/constants";
-import { formatCurrency, formatDate } from "@/utils";
+import { UI_TEXT, ICONS, API_ROUTES, PROPERTY_STATUS } from "@/constants";
+import { formatCurrency, formatDate, getPropertyStatusColor, getOfferStatusColor } from "@/utils";
 import OfferForm from "../../components/OfferForm";
 import type {
   Property,
