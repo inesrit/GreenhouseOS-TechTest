@@ -1,5 +1,6 @@
 import "./globals.css";
-import { UI_TEXT, ICONS } from "@/constants/constants";
+import { ICONS } from "@/constants";
+import MobileNav from "./components/MobileNav";
 
 export const metadata = {
   title: process.env.NEXT_PUBLIC_APP_TITLE,
@@ -15,20 +16,19 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
+      <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+      </head>
       <body className="bg-gray-50 min-h-screen">
-        <nav className="bg-green-700 text-white p-4 shadow-md">
+        <nav className="bg-green-700 text-white p-4 shadow-md relative">
           <div className="max-w-7xl mx-auto flex justify-between items-center">
-            <a href="/" className="text-2xl font-bold">
+            <a href="/" className="text-xl sm:text-2xl font-bold">
               {ICONS.APP_LOGO} {appName}
             </a>
-            <div className="flex gap-6 text-sm">
-              <a href="/" className="hover:underline">{UI_TEXT.NAV_PROPERTIES}</a>
-              <a href="#" className="hover:underline">{UI_TEXT.NAV_DASHBOARD}</a>
-              <a href="#" className="hover:underline">{UI_TEXT.NAV_SETTINGS}</a>
-            </div>
+            <MobileNav />
           </div>
         </nav>
-        <main className="max-w-7xl mx-auto p-6">{children}</main>
+        <main className="max-w-7xl mx-auto p-4 sm:p-6">{children}</main>
       </body>
     </html>
   );
