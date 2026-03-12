@@ -4,8 +4,8 @@
  */
 "use client";
 
-import { UI_TEXT, ICONS, getPropertyStatusColor } from "@/constants";
-import { formatCurrency } from "@/utils";
+import { UI_TEXT, ICONS } from "@/constants";
+import { formatCurrency, getPropertyStatusColor } from "@/utils";
 import type {
   PropertyCardProps,
   PropertyInfoProps,
