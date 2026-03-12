@@ -19,6 +19,7 @@ jest.mock('next/server', () => ({
 import { GET as getProperties } from '@/app/api/properties/route';
 import { GET as getPropertyById } from '@/app/api/properties/[id]/route';
 import { GET as getOffers, POST as postOffer } from '@/app/api/offers/route';
+import { GET as getSuggestion } from '@/app/api/offers/suggest/route';
 
 function createMockRequest(url: string, options?: RequestInit): Request {
   return {
@@ -199,7 +200,7 @@ describe('POST /api/offers', () => {
     });
   };
 
-  describe('happy path', () => {
+  describe('when it creates an offer', () => {
     it('creates offer successfully with valid data', async () => {
       const availableProperty = properties.find(p => p.status === PROPERTY_STATUS.AVAILABLE);
       
@@ -497,6 +498,205 @@ describe('POST /api/offers', () => {
 
       const [, options] = (NextResponse.json as jest.Mock).mock.calls[0];
       expect(options.status).toBe(400);
+    });
+  });
+});
+
+describe('GET /api/offers/suggest', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  describe('when smart suggestion is requested', () => {
+    it('returns suggestion for valid property', async () => {
+      const availableProperty = properties.find(p => p.status === PROPERTY_STATUS.AVAILABLE);
+      const request = createMockRequest(`http://localhost/api/offers/suggest?propertyId=${availableProperty?.id}`);
+
+      await getSuggestion(request);
+
+      expect(NextResponse.json).toHaveBeenCalled();
+      const [response, options] = (NextResponse.json as jest.Mock).mock.calls[0];
+      
+      expect(response.propertyId).toBe(availableProperty?.id);
+      expect(response.askingPrice).toBe(availableProperty?.price);
+      expect(response.suggestedAmount).toBeDefined();
+      expect(response.reasoning).toBeDefined();
+      expect(response.marketData).toBeDefined();
+      expect(options?.status).toBeUndefined(); // 200 OK
+    });
+
+    it('returns suggestion with market data structure', async () => {
+      const request = createMockRequest('http://localhost/api/offers/suggest?propertyId=prop-1');
+
+      await getSuggestion(request);
+
+      const [response] = (NextResponse.json as jest.Mock).mock.calls[0];
+      
+      expect(response.marketData).toHaveProperty('existingOffers');
+      expect(response.marketData).toHaveProperty('avgExistingOffer');
+      expect(response.marketData).toHaveProperty('nearbyProperties');
+      expect(response.marketData).toHaveProperty('avgNearbyPrice');
+      expect(response.marketData).toHaveProperty('avgNearbyOfferPercentage');
+    });
+
+    it('returns suggested amount as a number', async () => {
+      const request = createMockRequest('http://localhost/api/offers/suggest?propertyId=prop-1');
+
+      await getSuggestion(request);
+
+      const [response] = (NextResponse.json as jest.Mock).mock.calls[0];
+      expect(typeof response.suggestedAmount).toBe('number');
+      expect(response.suggestedAmount).toBeGreaterThan(0);
+    });
+
+    it('returns reasoning as a string', async () => {
+      const request = createMockRequest('http://localhost/api/offers/suggest?propertyId=prop-1');
+
+      await getSuggestion(request);
+
+      const [response] = (NextResponse.json as jest.Mock).mock.calls[0];
+      expect(typeof response.reasoning).toBe('string');
+      expect(response.reasoning.length).toBeGreaterThan(0);
+    });
+
+    it('rounds suggestion to nearest 1000', async () => {
+      const request = createMockRequest('http://localhost/api/offers/suggest?propertyId=prop-1');
+
+      await getSuggestion(request);
+
+      const [response] = (NextResponse.json as jest.Mock).mock.calls[0];
+      expect(response.suggestedAmount % 1000).toBe(0);
+    });
+
+    it('returns existing offers count for property with offers', async () => {
+      // prop-1 has multiple offers in mock data
+      const request = createMockRequest('http://localhost/api/offers/suggest?propertyId=prop-1');
+
+      await getSuggestion(request);
+
+      const [response] = (NextResponse.json as jest.Mock).mock.calls[0];
+      expect(response.marketData.existingOffers).toBeGreaterThan(0);
+    });
+
+    it('returns nearby properties count for city with multiple properties', async () => {
+      // London has multiple properties in mock data
+      const request = createMockRequest('http://localhost/api/offers/suggest?propertyId=prop-1');
+
+      await getSuggestion(request);
+
+      const [response] = (NextResponse.json as jest.Mock).mock.calls[0];
+      expect(response.marketData.nearbyProperties).toBeGreaterThan(0);
+    });
+  });
+
+  describe('suggestion bounds', () => {
+    it('suggests amount within 90-110% of asking price', async () => {
+      const property = properties.find(p => p.id === 'prop-1');
+      const request = createMockRequest('http://localhost/api/offers/suggest?propertyId=prop-1');
+
+      await getSuggestion(request);
+
+      const [response] = (NextResponse.json as jest.Mock).mock.calls[0];
+      const minBound = property!.price * 0.90;
+      const maxBound = property!.price * 1.10;
+      
+      expect(response.suggestedAmount).toBeGreaterThanOrEqual(minBound);
+      expect(response.suggestedAmount).toBeLessThanOrEqual(maxBound);
+    });
+  });
+
+  describe('validation errors', () => {
+    it('returns 400 for missing propertyId', async () => {
+      const request = createMockRequest('http://localhost/api/offers/suggest');
+
+      await getSuggestion(request);
+
+      const [response, options] = (NextResponse.json as jest.Mock).mock.calls[0];
+      expect(response.error).toBe(UI_TEXT.API_INVALID_PROPERTY_ID);
+      expect(options.status).toBe(400);
+    });
+
+    it('returns 400 for empty propertyId', async () => {
+      const request = createMockRequest('http://localhost/api/offers/suggest?propertyId=');
+
+      await getSuggestion(request);
+
+      const [response, options] = (NextResponse.json as jest.Mock).mock.calls[0];
+      expect(response.error).toBe(UI_TEXT.API_INVALID_PROPERTY_ID);
+      expect(options.status).toBe(400);
+    });
+
+    it('returns 400 for invalid propertyId format', async () => {
+      const request = createMockRequest('http://localhost/api/offers/suggest?propertyId=<script>alert(1)</script>');
+
+      await getSuggestion(request);
+
+      const [response, options] = (NextResponse.json as jest.Mock).mock.calls[0];
+      expect(response.error).toBe(UI_TEXT.API_INVALID_PROPERTY_ID);
+      expect(options.status).toBe(400);
+    });
+
+    it('returns 404 for non-existent property', async () => {
+      const request = createMockRequest('http://localhost/api/offers/suggest?propertyId=prop-nonexistent');
+
+      await getSuggestion(request);
+
+      const [response, options] = (NextResponse.json as jest.Mock).mock.calls[0];
+      expect(response.error).toBe(UI_TEXT.API_PROPERTY_NOT_FOUND);
+      expect(options.status).toBe(404);
+    });
+  });
+
+  describe('security edge cases', () => {
+    it('rejects SQL injection in propertyId', async () => {
+      const request = createMockRequest("http://localhost/api/offers/suggest?propertyId=prop-1'; DROP TABLE--");
+
+      await getSuggestion(request);
+
+      const [, options] = (NextResponse.json as jest.Mock).mock.calls[0];
+      expect(options.status).toBe(400);
+    });
+
+    it('rejects XSS in propertyId', async () => {
+      const request = createMockRequest('http://localhost/api/offers/suggest?propertyId=<img src=x onerror=alert(1)>');
+
+      await getSuggestion(request);
+
+      const [, options] = (NextResponse.json as jest.Mock).mock.calls[0];
+      expect(options.status).toBe(400);
+    });
+
+    it('rejects overly long propertyId', async () => {
+      const longId = 'a'.repeat(100);
+      const request = createMockRequest(`http://localhost/api/offers/suggest?propertyId=${longId}`);
+
+      await getSuggestion(request);
+
+      const [, options] = (NextResponse.json as jest.Mock).mock.calls[0];
+      expect(options.status).toBe(400);
+    });
+  });
+
+  describe('different market scenarios', () => {
+    it('handles property with no existing offers', async () => {
+      // Find a property with no offers or use a property that exists
+      const request = createMockRequest('http://localhost/api/offers/suggest?propertyId=prop-22');
+
+      await getSuggestion(request);
+
+      const [response] = (NextResponse.json as jest.Mock).mock.calls[0];
+      expect(response.suggestedAmount).toBeDefined();
+      expect(response.reasoning).toBeDefined();
+    });
+
+    it('includes city name in reasoning when market data available', async () => {
+      const request = createMockRequest('http://localhost/api/offers/suggest?propertyId=prop-1');
+
+      await getSuggestion(request);
+
+      const [response] = (NextResponse.json as jest.Mock).mock.calls[0];
+      // London properties should mention London in reasoning
+      expect(response.reasoning.toLowerCase()).toMatch(/london|market|offer/);
     });
   });
 });

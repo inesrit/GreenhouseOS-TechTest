@@ -13,13 +13,10 @@ import {
   validateOfferAmount,
   filterAndSortProperties,
   sortOffers,
+  extractCity,
 } from '@/utils';
 import { PROPERTY_STATUS, OFFER_STATUS, SORT_OPTIONS, UI_TEXT } from '@/constants';
 import type { EnrichedProperty, Offer } from '@/types';
-
-// =============================================================================
-// Color Helper Tests
-// =============================================================================
 
 describe('getPropertyStatusColor', () => {
   it('returns green for Available status', () => {
@@ -61,12 +58,8 @@ describe('getOfferStatusColor', () => {
   });
 });
 
-// =============================================================================
-// sanitizeId Tests
-// =============================================================================
-
 describe('sanitizeId', () => {
-  describe('happy path', () => {
+  describe('returns sanitized ID for valid inputs', () => {
     it('returns valid alphanumeric id', () => {
       expect(sanitizeId('prop-123')).toBe('prop-123');
     });
@@ -125,15 +118,11 @@ describe('sanitizeId', () => {
   });
 });
 
-// =============================================================================
-// sanitizeAmount Tests
-// =============================================================================
-
 describe('sanitizeAmount', () => {
   const MIN = 1000;
   const MAX = 100000000;
 
-  describe('happy path', () => {
+  describe('returns sanitized amount for valid inputs', () => {
     it('accepts valid number', () => {
       expect(sanitizeAmount(50000, MIN, MAX)).toBe(50000);
     });
@@ -201,10 +190,6 @@ describe('sanitizeAmount', () => {
   });
 });
 
-// =============================================================================
-// formatCurrency Tests
-// =============================================================================
-
 describe('formatCurrency', () => {
   it('formats number as GBP with pound sign', () => {
     expect(formatCurrency(1000)).toBe('£1,000');
@@ -228,10 +213,6 @@ describe('formatCurrency', () => {
   });
 });
 
-// =============================================================================
-// formatDate Tests
-// =============================================================================
-
 describe('formatDate', () => {
   it('formats ISO date to DD/MM/YYYY', () => {
     expect(formatDate('2024-03-15T10:00:00Z')).toBe('15/03/2024');
@@ -250,10 +231,6 @@ describe('formatDate', () => {
     expect(result).toMatch(/^\d{2}\/\d{2}\/\d{4}$/);
   });
 });
-
-// =============================================================================
-// parseAmount Tests
-// =============================================================================
 
 describe('parseAmount', () => {
   it('parses plain number string', () => {
@@ -281,12 +258,8 @@ describe('parseAmount', () => {
   });
 });
 
-// =============================================================================
-// validateOfferAmount Tests
-// =============================================================================
-
 describe('validateOfferAmount', () => {
-  describe('happy path', () => {
+  describe('returns null when amount is valid', () => {
     it('returns null for valid amount', () => {
       expect(validateOfferAmount('50000')).toBeNull();
     });
@@ -328,10 +301,6 @@ describe('validateOfferAmount', () => {
     });
   });
 });
-
-// =============================================================================
-// filterAndSortProperties Tests
-// =============================================================================
 
 describe('filterAndSortProperties', () => {
   const mockProperties: EnrichedProperty[] = [
@@ -452,10 +421,6 @@ describe('filterAndSortProperties', () => {
   });
 });
 
-// =============================================================================
-// sortOffers Tests
-// =============================================================================
-
 describe('sortOffers', () => {
   const mockOffers: Offer[] = [
     { id: 'o1', propertyId: 'p1', contactId: 'c1', amount: 100000, status: OFFER_STATUS.REJECTED, dateAdded: '2024-01-10T10:00:00Z' },
@@ -504,5 +469,55 @@ describe('sortOffers', () => {
     const result = sortOffers([offerWithUnknownStatus, mockOffers[2]]);
     // Accepted should still come first
     expect(result[0].status).toBe(OFFER_STATUS.ACCEPTED);
+  });
+});
+
+describe('extractCity', () => {
+  describe('standard UK address formats', () => {
+    it('extracts city from standard address with postcode', () => {
+      expect(extractCity('12 Kensington Gardens, London W8 4PE')).toBe('London');
+    });
+
+    it('extracts city with multi-word postcode prefix', () => {
+      expect(extractCity('45 Victoria Road, Manchester M20 3FH')).toBe('Manchester');
+    });
+
+    it('extracts city from Scottish address', () => {
+      expect(extractCity('8 Castle Street, Edinburgh EH2 3AH')).toBe('Edinburgh');
+    });
+
+    it('extracts city from Welsh address', () => {
+      expect(extractCity('15 High Street, Cardiff CF10 1AA')).toBe('Cardiff');
+    });
+
+    it('handles city with multiple words', () => {
+      expect(extractCity('1 Main Road, Milton Keynes MK1 1AA')).toBe('Milton Keynes');
+    });
+  });
+
+  describe('edge cases', () => {
+    it('returns full address when no comma present', () => {
+      expect(extractCity('London W8 4PE')).toBe('London W8 4PE');
+    });
+
+    it('handles address with multiple commas', () => {
+      expect(extractCity('Flat 1, 12 High Street, London W1 1AA')).toBe('London');
+    });
+
+    it('handles trailing spaces', () => {
+      expect(extractCity('12 High Street, London W1 1AA  ')).toBe('London');
+    });
+
+    it('handles address with no postcode', () => {
+      expect(extractCity('12 High Street, London')).toBe('London');
+    });
+
+    it('handles empty string', () => {
+      expect(extractCity('')).toBe('');
+    });
+
+    it('handles address with only street', () => {
+      expect(extractCity('12 High Street')).toBe('12 High Street');
+    });
   });
 });

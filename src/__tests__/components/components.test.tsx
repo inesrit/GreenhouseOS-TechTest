@@ -498,7 +498,183 @@ describe('OfferForm', () => {
       fireEvent.click(button);
 
       await waitFor(() => {
-        expect(screen.getByRole('button')).toBeDisabled();
+        expect(screen.getByRole('button', { name: UI_TEXT.SUBMITTING_OFFER })).toBeDisabled();
+      });
+    });
+  });
+
+  describe('Smart Suggest', () => {
+    it('renders Smart Suggest button', () => {
+      render(<OfferForm {...defaultProps} />);
+      expect(screen.getByRole('button', { name: /Smart Suggest/ })).toBeInTheDocument();
+    });
+
+    it('has tooltip on Smart Suggest button', () => {
+      render(<OfferForm {...defaultProps} />);
+      const button = screen.getByRole('button', { name: /Smart Suggest/ });
+      expect(button).toHaveAttribute('title', UI_TEXT.SMART_SUGGEST_TOOLTIP);
+    });
+
+    it('shows loading state when fetching suggestion', async () => {
+      (global.fetch as jest.Mock).mockImplementationOnce(
+        () => new Promise((resolve) => setTimeout(resolve, 100))
+      );
+
+      render(<OfferForm {...defaultProps} />);
+      const suggestButton = screen.getByRole('button', { name: /Smart Suggest/ });
+      
+      fireEvent.click(suggestButton);
+
+      await waitFor(() => {
+        expect(screen.getByText(UI_TEXT.SMART_SUGGEST_LOADING)).toBeInTheDocument();
+      });
+    });
+
+    it('populates amount field with suggestion on success', async () => {
+      (global.fetch as jest.Mock).mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          suggestedAmount: 475000,
+          reasoning: 'Based on market data.',
+          marketData: {
+            existingOffers: 2,
+            avgExistingOffer: 480000,
+            nearbyProperties: 3,
+            avgNearbyPrice: 500000,
+            avgNearbyOfferPercentage: 0.95,
+          },
+        }),
+      });
+
+      render(<OfferForm {...defaultProps} />);
+      const suggestButton = screen.getByRole('button', { name: /Smart Suggest/ });
+      
+      fireEvent.click(suggestButton);
+
+      await waitFor(() => {
+        const input = screen.getByRole('textbox');
+        expect(input).toHaveValue('475,000');
+      });
+    });
+
+    it('shows suggestion details after successful fetch', async () => {
+      (global.fetch as jest.Mock).mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          suggestedAmount: 475000,
+          reasoning: 'Based on market data analysis.',
+          marketData: {
+            existingOffers: 2,
+            avgExistingOffer: 480000,
+            nearbyProperties: 3,
+            avgNearbyPrice: 500000,
+            avgNearbyOfferPercentage: 0.95,
+          },
+        }),
+      });
+
+      render(<OfferForm {...defaultProps} />);
+      const suggestButton = screen.getByRole('button', { name: /Smart Suggest/ });
+      
+      fireEvent.click(suggestButton);
+
+      await waitFor(() => {
+        expect(screen.getByText(/Based on market data analysis/)).toBeInTheDocument();
+      });
+    });
+
+    it('shows error message on fetch failure', async () => {
+      (global.fetch as jest.Mock).mockResolvedValueOnce({
+        ok: false,
+        json: async () => ({ error: 'Server error' }),
+      });
+
+      render(<OfferForm {...defaultProps} />);
+      const suggestButton = screen.getByRole('button', { name: /Smart Suggest/ });
+      
+      fireEvent.click(suggestButton);
+
+      await waitFor(() => {
+        expect(screen.getByText(UI_TEXT.SMART_SUGGEST_ERROR)).toBeInTheDocument();
+      });
+    });
+
+    it('can dismiss suggestion details', async () => {
+      (global.fetch as jest.Mock).mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          suggestedAmount: 475000,
+          reasoning: 'Based on market data.',
+          marketData: {
+            existingOffers: 2,
+            avgExistingOffer: 480000,
+            nearbyProperties: 3,
+            avgNearbyPrice: 500000,
+            avgNearbyOfferPercentage: 0.95,
+          },
+        }),
+      });
+
+      render(<OfferForm {...defaultProps} />);
+      const suggestButton = screen.getByRole('button', { name: /Smart Suggest/ });
+      
+      fireEvent.click(suggestButton);
+
+      await waitFor(() => {
+        expect(screen.getByText(/Based on market data/)).toBeInTheDocument();
+      });
+
+      const dismissButton = screen.getByRole('button', { name: /Dismiss suggestion/ });
+      fireEvent.click(dismissButton);
+
+      await waitFor(() => {
+        expect(screen.queryByText(/Based on market data/)).not.toBeInTheDocument();
+      });
+    });
+
+    it('disables Smart Suggest while submitting offer', async () => {
+      (global.fetch as jest.Mock).mockImplementationOnce(
+        () => new Promise((resolve) => setTimeout(resolve, 100))
+      );
+
+      render(<OfferForm {...defaultProps} />);
+      
+      const input = screen.getByRole('textbox');
+      await userEvent.type(input, '500000');
+      
+      const submitButton = screen.getByRole('button', { name: UI_TEXT.SUBMIT_OFFER });
+      fireEvent.click(submitButton);
+
+      await waitFor(() => {
+        const suggestButton = screen.getByRole('button', { name: /Smart Suggest|Analyzing/ });
+        expect(suggestButton).toBeDisabled();
+      });
+    });
+
+    it('shows market data badges when available', async () => {
+      (global.fetch as jest.Mock).mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          suggestedAmount: 475000,
+          reasoning: 'Based on market data.',
+          marketData: {
+            existingOffers: 2,
+            avgExistingOffer: 480000,
+            nearbyProperties: 3,
+            avgNearbyPrice: 500000,
+            avgNearbyOfferPercentage: 0.95,
+          },
+        }),
+      });
+
+      render(<OfferForm {...defaultProps} />);
+      const suggestButton = screen.getByRole('button', { name: /Smart Suggest/ });
+      
+      fireEvent.click(suggestButton);
+
+      await waitFor(() => {
+        expect(screen.getByText(/2 offer\(s\) on this property/)).toBeInTheDocument();
+        expect(screen.getByText(/3 nearby properties/)).toBeInTheDocument();
       });
     });
   });
