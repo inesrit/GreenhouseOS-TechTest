@@ -110,5 +110,18 @@ For mobile responsiveness, added hamburger menu for nav, viewport meta tag and h
 
 Refactored code moving logic into sub components where necessary, cleaning up "noise" comments and keeping logic consistent.
 
-Used AI to write junit tests for all the app features.
+Phase 3:
+
+Used AI to write junit tests for all the app features. Added a couple of missing edge cases and removed unnecessary duplicates. 
+
+With the help of AI created an algorithm for offer suggestion for buyers to have an idea of what amount to offer for a property, this is based on the current existing offers, and other properties availble that are nearby asking price. This could be further improved with the help of AI model integrated trained on existing historical data or market trends.
+
+This could use some more consitency keeping.git g
+
+Some choice were maded during the last phase that fit into what this one is asking for.
+Ideally with more time and effort put into this, afull integrated and more visually please system could be built. I chose to focus on the properties and their presentation and did not add to the dashboard or settings, did not create a distinction in the system between buyer, seller, and admin and what functionality would be available to each.
+Ideas that popped up are a main landing page that allows buyers to take control over and narrow down what properties they would like to see.
+A medium of communication between buyers, sellers, and admins, contact forms, live chat.
+The management side has a lot of potential, AI could be used to dictate/suggest the asking price for a property based on related data available such as location, ammenities, surrounding properties value.
+A workflow could be automated for the buying and selling side that makes the process easier and more straightforward, with each step crafted per admin requests and the system providing or automating information request and integrating it from buyers.
 
