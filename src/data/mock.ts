@@ -1,3 +1,7 @@
+/**
+ * Mock data
+ */
+
 import type { Property, Contact, Offer } from "@/types";
 
 export const properties: Property[] = [
@@ -121,24 +125,24 @@ export const contacts: Contact[] = [
 ];
 
 export const offers: Offer[] = [
-  { id: "offer-1", propertyId: "prop-1", contactId: "contact-2", amount: 1200000, status: "Rejected" },
-  { id: "offer-2", propertyId: "prop-1", contactId: "contact-2", amount: 1230000, status: "Pending" },
-  { id: "offer-3", propertyId: "prop-1", contactId: "contact-3", amount: 1250000, status: "Pending" },
-  { id: "offer-4", propertyId: "prop-2", contactId: "contact-5", amount: 370000, status: "Rejected" },
-  { id: "offer-5", propertyId: "prop-2", contactId: "contact-5", amount: 382000, status: "Accepted" },
-  { id: "offer-6", propertyId: "prop-3", contactId: "contact-7", amount: 450000, status: "Pending" },
-  { id: "offer-7", propertyId: "prop-4", contactId: "contact-9", amount: 660000, status: "Rejected" },
-  { id: "offer-8", propertyId: "prop-4", contactId: "contact-10", amount: 690000, status: "Accepted" },
-  { id: "offer-9", propertyId: "prop-4", contactId: "contact-9", amount: 685000, status: "Rejected" },
-  { id: "offer-10", propertyId: "prop-5", contactId: "contact-12", amount: 310000, status: "Pending" },
-  { id: "offer-11", propertyId: "prop-6", contactId: "contact-14", amount: 200000, status: "Rejected" },
-  { id: "offer-12", propertyId: "prop-6", contactId: "contact-14", amount: 210000, status: "Pending" },
-  { id: "offer-13", propertyId: "prop-7", contactId: "contact-16", amount: 530000, status: "Rejected" },
-  { id: "offer-14", propertyId: "prop-7", contactId: "contact-16", amount: 545000, status: "Accepted" },
-  { id: "offer-15", propertyId: "prop-8", contactId: "contact-18", amount: 850000, status: "Pending" },
-  { id: "offer-16", propertyId: "prop-9", contactId: "contact-20", amount: 700000, status: "Rejected" },
-  { id: "offer-17", propertyId: "prop-9", contactId: "contact-20", amount: 720000, status: "Accepted" },
-  { id: "offer-18", propertyId: "prop-10", contactId: "contact-22", amount: 185000, status: "Pending" },
-  { id: "offer-19", propertyId: "prop-11", contactId: "contact-24", amount: 415000, status: "Pending" },
-  { id: "offer-20", propertyId: "prop-12", contactId: "contact-26", amount: 270000, status: "Accepted" },
+  { id: "offer-1", propertyId: "prop-1", contactId: "contact-2", amount: 1200000, status: "Rejected", dateAdded: "2024-01-15T10:00:00Z" },
+  { id: "offer-2", propertyId: "prop-1", contactId: "contact-2", amount: 1270000, status: "Pending", dateAdded: "2024-02-20T14:30:00Z" },
+  { id: "offer-3", propertyId: "prop-1", contactId: "contact-3", amount: 1250000, status: "Pending", dateAdded: "2024-02-18T09:15:00Z" },
+  { id: "offer-4", propertyId: "prop-2", contactId: "contact-5", amount: 370000, status: "Rejected", dateAdded: "2023-11-10T11:00:00Z" },
+  { id: "offer-5", propertyId: "prop-2", contactId: "contact-5", amount: 382000, status: "Accepted", dateAdded: "2023-12-05T16:45:00Z" },
+  { id: "offer-6", propertyId: "prop-3", contactId: "contact-7", amount: 450000, status: "Pending", dateAdded: "2024-03-01T13:20:00Z" },
+  { id: "offer-7", propertyId: "prop-4", contactId: "contact-9", amount: 660000, status: "Rejected", dateAdded: "2023-08-15T10:00:00Z" },
+  { id: "offer-8", propertyId: "prop-4", contactId: "contact-10", amount: 690000, status: "Accepted", dateAdded: "2023-09-20T14:00:00Z" },
+  { id: "offer-9", propertyId: "prop-4", contactId: "contact-9", amount: 685000, status: "Rejected", dateAdded: "2023-09-10T11:30:00Z" },
+  { id: "offer-10", propertyId: "prop-5", contactId: "contact-12", amount: 310000, status: "Pending", dateAdded: "2024-02-28T09:00:00Z" },
+  { id: "offer-11", propertyId: "prop-6", contactId: "contact-14", amount: 200000, status: "Rejected", dateAdded: "2024-01-05T10:00:00Z" },
+  { id: "offer-12", propertyId: "prop-6", contactId: "contact-14", amount: 210000, status: "Pending", dateAdded: "2024-02-10T15:00:00Z" },
+  { id: "offer-13", propertyId: "prop-7", contactId: "contact-16", amount: 530000, status: "Rejected", dateAdded: "2023-12-01T10:00:00Z" },
+  { id: "offer-14", propertyId: "prop-7", contactId: "contact-16", amount: 545000, status: "Accepted", dateAdded: "2024-01-15T14:00:00Z" },
+  { id: "offer-15", propertyId: "prop-8", contactId: "contact-18", amount: 850000, status: "Pending", dateAdded: "2024-03-10T11:00:00Z" },
+  { id: "offer-16", propertyId: "prop-9", contactId: "contact-20", amount: 700000, status: "Rejected", dateAdded: "2023-07-01T10:00:00Z" },
+  { id: "offer-17", propertyId: "prop-9", contactId: "contact-20", amount: 720000, status: "Accepted", dateAdded: "2023-08-01T14:00:00Z" },
+  { id: "offer-18", propertyId: "prop-10", contactId: "contact-22", amount: 185000, status: "Pending", dateAdded: "2024-02-25T09:30:00Z" },
+  { id: "offer-19", propertyId: "prop-11", contactId: "contact-24", amount: 415000, status: "Pending", dateAdded: "2024-03-05T10:00:00Z" },
+  { id: "offer-20", propertyId: "prop-12", contactId: "contact-26", amount: 270000, status: "Accepted", dateAdded: "2024-01-20T16:00:00Z" },
 ];
