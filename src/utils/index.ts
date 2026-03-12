@@ -148,3 +148,23 @@ export function sortOffers(offersList: Offer[]): Offer[] {
     return new Date(b.dateAdded).getTime() - new Date(a.dateAdded).getTime();
   });
 }
+
+/**
+ * Extracts the city name from a UK address string
+ * Assumes format: "Number Street, City PostCode"
+ * @param address - Full address string
+ * @returns City name extracted from address
+ */
+export function extractCity(address: string): string {
+  const parts = address.split(",");
+  if (parts.length >= 2) {
+    const cityPart = parts[parts.length - 1].trim();
+    const words = cityPart.split(" ");
+    const postcodeIndex = words.findIndex(word => /\d/.test(word));
+    if (postcodeIndex > 0) {
+      return words.slice(0, postcodeIndex).join(" ");
+    }
+    return words[0];
+  }
+  return address;
+}
