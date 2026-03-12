@@ -5,7 +5,7 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const propertyId = searchParams.get("propertyId");
 
-  //TODO: Implement actual filtering logic based on propertyId
+  //TODO (not in scope)
   if (propertyId) {
     return NextResponse.json([]);
   }
