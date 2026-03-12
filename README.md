@@ -8,11 +8,12 @@ The GreenHouse Property Portal is a full-stack application designed to streamlin
 
 ### Key Features
 
-- **Property Listings** — Browse all available properties with key details (price, location, status)
+- **Property Listings** — Browse all available properties with filtering and sorting
 - **Property Details** — View comprehensive information about individual properties
-- **Offer Management** — Track and manage offers on properties
-- **Contact Management** — Store and manage contact information for buyers and sellers
-- **Responsive Design** — Works seamlessly on desktop and mobile devices
+- **Offer Management** — Submit and track offers on properties with real-time validation
+- **Smart Filtering** — Filter by status (Available, Sale Agreed, Sold) and sort by price, date, or address
+- **High Demand Badge** — Visual indicator for properties with 5+ offers
+- **Responsive Design** — Works seamlessly on desktop and mobile devices with hamburger navigation
 
 ### Technology Stack
 
@@ -26,20 +27,32 @@ The GreenHouse Property Portal is a full-stack application designed to streamlin
 ```
 src/
 ├── app/
-│   ├── page.tsx                    # Homepage with property listings
-│   ├── layout.tsx                  # Root layout wrapper
-│   ├── globals.css                 # Global styles
+│   ├── page.tsx                        # Homepage with property listings
+│   ├── layout.tsx                      # Root layout wrapper
+│   ├── globals.css                     # Global styles
 │   ├── components/
-│   │   └── PropertyCard.tsx         # Reusable property card component
+│   │   ├── MobileNav.tsx               # Responsive hamburger navigation
+│   │   ├── OfferForm.tsx               # Offer submission form with validation
+│   │   ├── PropertyCard.tsx            # Property card for listings
+│   │   ├── PropertyFilters.tsx         # Filter/sort controls container
+│   │   ├── SortSelect.tsx              # Sort dropdown component
+│   │   └── StatusFilter.tsx            # Status filter dropdown
 │   ├── property/
-│   │   └── [id]/page.tsx            # Individual property detail page
+│   │   └── [id]/page.tsx               # Individual property detail page
 │   └── api/
-│       ├── properties/route.ts      # GET /api/properties
-│       ├── offers/route.ts          # GET /api/offers
-│       ├── contacts/route.ts        # GET /api/contacts
-│       └── [id]/route.ts            # Individual property endpoints
+│       ├── properties/
+│       │   ├── route.ts                # GET /api/properties
+│       │   └── [id]/route.ts           # GET /api/properties/:id
+│       ├── offers/route.ts             # GET/POST /api/offers
+│       └── contacts/route.ts           # GET /api/contacts
+├── constants/
+│   └── index.ts                        # UI text, status values, colors
+├── types/
+│   └── index.ts                        # TypeScript interfaces and types
+├── utils/
+│   └── index.ts                        # Utility functions (formatters, validators, sanitizers)
 └── data/
-    └── mock.ts                      # Mock data and TypeScript interfaces
+    └── mock.ts                         # Mock data for properties, contacts, offers
 ```
 
 ## Setup
@@ -62,14 +75,44 @@ The application will be available at [http://localhost:3000](http://localhost:30
 
 ## Available Commands
 
-- `npm run dev` — Start development server with hot reload
-- `npm run build` — Build for production
-- `npm run start` — Run production server
-- `npm run lint` — Run ESLint code quality checks
+| Command | Description |
+|---------|-------------|
+| `npm run dev` | Start development server with hot reload |
+| `npm run build` | Build for production |
+| `npm run start` | Run production server |
+| `npm run lint` | Run ESLint code quality checks |
+
+## API Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/properties` | List all properties with metadata |
+| GET | `/api/properties/:id` | Get single property details |
+| GET | `/api/offers` | List all offers (filterable by propertyId) |
+| POST | `/api/offers` | Submit a new offer |
+| GET | `/api/contacts` | List all contacts |
+
+## Architecture Decisions
+
+### Centralised Constants & Types
+- All UI text in `constants/index.ts` for easy i18n support
+- TypeScript interfaces in `types/index.ts` for type safety
+- Utility functions in `utils/index.ts` for reusability
+
+### Security Measures
+- Input sanitisation for IDs (alphanumeric only, max 50 chars)
+- Amount validation with sensible limits (£1,000 - £100,000,000)
+- JSON parsing protection against malformed requests
+- Property availability checks before accepting offers
+
+### Performance
+- Caching headers on property endpoints
+- Parallel API requests on detail pages
+- Optimised re-renders with React hooks
 
 ## Notes
 
-This is a prototype implementation. The data is currently mocked in `src/data/mock.ts` and served through API routes. The application is fully functional but may benefit from further optimization and refinement for production use.
+This is a prototype implementation. The data is currently mocked in `src/data/mock.ts` and served through API routes. The application is fully functional but may benefit from further optimisation and refinement for production use.
 
 
 ## AI Tools Usage
